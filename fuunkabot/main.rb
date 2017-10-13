@@ -8,6 +8,7 @@ TOKEN = "463417531:AAGtmovT08ni1WaNRAvFo_rveVmx4jpTHR4"
 
 GET_UPDATES_URL = "https://api.telegram.org/bot#{TOKEN}/getUpdates"
 SEND_MESSAGE_URL = "https://api.telegram.org/bot#{TOKEN}/sendMessage"
+GRAPHITE_URL = "http://localhost/render"
 
 
 def get_updates(offset: 0)
@@ -26,11 +27,15 @@ def send_message(chat_id:, text:)
 end
 
 def get_co2
-  800
+  response = Excon.new(GRAPHITE_URL).get(query: { target: "co2mon.raspberrypi.co2", format: "json", from: "-120s" })
+  body = JSON.parse(response.body)
+  body.first["datapoints"].max { |d| d[1] }.first
 end
 
 def get_temp
-  42
+  response = Excon.new(GRAPHITE_URL).get(query: { target: "co2mon.raspberrypi.temp", format: "json", from: "-120s" })
+  body = JSON.parse(response.body)
+  body.first["datapoints"].max { |d| d[1] }.first
 end
 
 @offset = 0
@@ -46,6 +51,8 @@ loop do
         case message["text"]
         when "co2", "со2", "цо2"
           send_message(chat_id: message["chat"]["id"], text: get_co2)
+        when "temp", "температура", "темп", "градусы"
+          send_message(chat_id: message["chat"]["id"], text: get_temp)
         end
       end
     end
