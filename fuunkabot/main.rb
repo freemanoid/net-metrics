@@ -27,13 +27,13 @@ def send_message(chat_id:, text:)
 end
 
 def get_co2
-  response = Excon.new(GRAPHITE_URL).get(query: { target: "co2mon.raspberrypi.co2", format: "json", from: "-120s" })
+  response = Excon.new(GRAPHITE_URL).get(query: { target: "co2mon.raspberrypi.co2", format: "json", from: "-600s" })
   body = JSON.parse(response.body)
   body.first["datapoints"].max { |d| d[1] }.first
 end
 
 def get_temp
-  response = Excon.new(GRAPHITE_URL).get(query: { target: "co2mon.raspberrypi.temp", format: "json", from: "-120s" })
+  response = Excon.new(GRAPHITE_URL).get(query: { target: "co2mon.raspberrypi.temp", format: "json", from: "-600s" })
   body = JSON.parse(response.body)
   body.first["datapoints"].max { |d| d[1] }.first
 end
